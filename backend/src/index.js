@@ -13,7 +13,7 @@ import { app, server } from "./lib/socket.js";
 dotenv.config();
 
 const PORT = process.env.PORT;
-const __dirname = path.resolve()
+const __dirname = path.resolve();
 
 app.use(
     cors({
@@ -25,19 +25,17 @@ app.use(
 app.use(express.json());
 app.use(express.json({ limit: "50000mb" }));
 app.use(cookieParser());
-console.log("ALLLLLLL RIGHHHHHTTTT")
-
+console.log("ALLLLLLL RIGHHHHHTTTT");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
-if(process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "../frontend/dist")))
-
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
     app.get("/*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"))
-    })
+        res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+    });
 }
 
 server.listen(PORT, () => {
