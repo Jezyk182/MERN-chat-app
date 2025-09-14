@@ -5,39 +5,31 @@ import express from "express";
 const app = express();
 const server = http.createServer(app);
 
-// Store online users { userId: socketId }
-const userSocketMap = {};
-
 const io = new Server(server, {
   cors: {
-    origin: [
-      process.env.FRONTEND_URL || "http://localhost:5173", // ✅ dynamic for deployment
-    ],
-    methods: ["GET", "POST"],
-    credentials: true,
+    origin: ["http://localhost:5173"],
   },
 });
 
-// Helper to get receiver’s socket ID
 export function getReceiverSocketId(userId) {
   return userSocketMap[userId];
 }
 
+// used to store online users
+const userSocketMap = {}; // {userId: socketId}
+
 io.on("connection", (socket) => {
-  console.log("✅ User connected:", socket.id);
+  console.log("A user connected", socket.id);
 
   const userId = socket.handshake.query.userId;
-  if (userId) {
-    userSocketMap[userId] = socket.id;
-  }
+  if (userId) userSocketMap[userId] = socket.id;
 
-  // Notify all clients about online users
+  // io.emit() is used to send events to all the connected clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
   socket.on("disconnect", () => {
-    console.log("❌ User disconnected:", socket.id);
+    console.log("A user disconnected", socket.id);
     delete userSocketMap[userId];
-
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
   });
 });
